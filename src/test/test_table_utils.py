@@ -128,10 +128,14 @@ class TestPipelineMerge(TestCase):
     def test_stack_data(self):
         data = DataFrame.from_records(
             [
-                {"idx": 0, "piv": "A", "val": 1},
-                {"idx": 0, "piv": "B", "val": 2},
-                {"idx": 1, "piv": "A", "val": 3},
-                {"idx": 1, "piv": "B", "val": 4},
+                {"idx": 0, "piv1": "A", "val": 1},
+                {"idx": 0, "piv1": "B", "val": 2},
+                {"idx": 1, "piv1": "A", "val": 3},
+                {"idx": 1, "piv1": "B", "val": 4},
+                {"idx": 2, "piv1": "A", "val": 1},
+                {"idx": 2, "piv1": "B", "val": 2},
+                {"idx": 3, "piv1": "A", "val": 3},
+                {"idx": 3, "piv1": "B", "val": 4},
             ]
         )
 
@@ -139,6 +143,8 @@ class TestPipelineMerge(TestCase):
             [
                 {"idx": 0, "val": 3, "val_A": 1, "val_B": 2},
                 {"idx": 1, "val": 7, "val_A": 3, "val_B": 4},
+                {"idx": 2, "val": 3, "val_A": 1, "val_B": 2},
+                {"idx": 3, "val": 7, "val_A": 3, "val_B": 4},
             ]
         )
 
@@ -147,7 +153,7 @@ class TestPipelineMerge(TestCase):
 
         expected.to_csv(buffer1)
         stack_table(
-            data, index_columns=["idx"], value_columns=["val"], stack_columns=["piv"]
+            data, index_columns=["idx"], value_columns=["val"], stack_columns=["piv1"]
         ).to_csv(buffer2)
 
         self.assertEqual(buffer1.getvalue(), buffer2.getvalue())
