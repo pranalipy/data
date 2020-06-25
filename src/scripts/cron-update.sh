@@ -25,8 +25,13 @@ docker run -v "$TMPDIR/opencovid":/opencovid -w /opencovid -i python:latest /bin
 cd src
 # Install locales
 apt-get update && apt-get install -yq tzdata locales
+sh -c 'echo en_US.UTF-8 UTF-8 >> /etc/locale.gen'
+sh -c 'echo es_ES.UTF-8 UTF-8 >> /etc/locale.gen'
 locale-gen en_US.UTF-8
 locale-gen es_ES.UTF-8
+dpkg-reconfigure --frontend noninteractive locales
+export LC_ALL="en_US.UTF-8"
+export LC_CTYPE="en_US.UTF-8"
 # Install Python dependencies
 pip install -r requirements.txt
 # Update all the data pipelines
