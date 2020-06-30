@@ -25,9 +25,8 @@ from tqdm import tqdm
 from pandas import DataFrame
 
 from lib.concurrent import thread_map
-from lib.forecast import main as build_forecast
 from lib.io import read_file, export_csv
-from lib.utils import ROOT, drop_na_records
+from lib.utils import ROOT
 
 
 def snake_to_camel_case(txt: str) -> str:
@@ -145,70 +144,3 @@ for _ in thread_map(map_func, main_indexed.index.unique(), desc="Grouped key sub
 map_func = export_json_without_index
 for _ in thread_map(map_func, [*(v2_folder).glob("**/*.csv")], desc="JSON conversion"):
     pass
-
-# Perform data transformations for backwards compatibility
-v1_folder = public_folder  # Same as root
-print("Performing backwards compatibility transformations...")
-
-# Create the v1 data.csv file
-data = main_table[main_table.aggregation_level < 2]
-rename_columns = {
-    "date": "Date",
-    "key": "Key",
-    "country_code": "CountryCode",
-    "country_name": "CountryName",
-    "subregion1_code": "RegionCode",
-    "subregion1_name": "RegionName",
-    "total_confirmed": "Confirmed",
-    "total_deceased": "Deaths",
-    "latitude": "Latitude",
-    "longitude": "Longitude",
-    "population": "Population",
-}
-data = data[rename_columns.keys()].rename(columns=rename_columns)
-data = data.dropna(subset=["Confirmed", "Deaths"], how="all")
-data = data.sort_values(["Date", "Key"])
-export_csv(data, v1_folder / "data.csv")
-
-# Create the v1 data_minimal.csv file
-export_csv(data[["Date", "Key", "Confirmed", "Deaths"]], v1_folder / "data_minimal.csv")
-
-# Create the v1 data_latest.csv file
-latest = main_table[main_table.aggregation_level < 2]
-latest = latest.sort_values("date").groupby("key").last().reset_index()
-latest = latest[rename_columns.keys()].rename(columns=rename_columns)
-latest = latest.dropna(subset=["Confirmed", "Deaths"], how="all")
-latest = latest.sort_values(["Key", "Date"])
-export_csv(latest, v1_folder / "data_latest.csv")
-
-# Create the v1 weather.csv file
-weather = read_file(v2_folder / "weather.csv")
-weather = weather[weather.key.apply(lambda x: len(x.split("_")) < 3)]
-weather = weather.rename(columns={"noaa_distance": "distance", "noaa_station": "station"})
-rename_columns = {col: snake_to_camel_case(col) for col in weather.columns}
-export_csv(weather.rename(columns=rename_columns), v1_folder / "weather.csv")
-
-# Create the v1 mobility.csv file
-mobility = read_file(v2_folder / "mobility.csv")
-mobility = mobility[mobility.key.apply(lambda x: len(x.split("_")) < 3)]
-mobility = drop_na_records(mobility, ["date", "key"])
-rename_columns = {col: snake_to_camel_case(col).replace("Mobility", "") for col in mobility.columns}
-export_csv(mobility.rename(columns=rename_columns), v1_folder / "mobility.csv")
-
-# Create the v1 CSV files which only require simple column mapping
-v1_v2_name_map = {"response": "oxford-government-response"}
-for v1_name, v2_name in v1_v2_name_map.items():
-    data = read_file(v2_folder / f"{v2_name}.csv")
-    rename_columns = {col: snake_to_camel_case(col) for col in data.columns}
-    export_csv(data.rename(columns=rename_columns), v1_folder / f"{v1_name}.csv")
-
-# Create the v1 forecast.csv file
-export_csv(
-    build_forecast(read_file(v1_folder / "data_minimal.csv")), v1_folder / "data_forecast.csv"
-)
-
-# Convert all v1 CSV files to JSON using record format
-for csv_file in tqdm([*(v1_folder).glob("*.csv")], desc="V1 JSON conversion"):
-    data = read_file(csv_file, low_memory=False)
-    json_path = str(csv_file).replace("csv", "json")
-    data.to_json(json_path, orient="records")

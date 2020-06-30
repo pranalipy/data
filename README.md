@@ -468,16 +468,6 @@ There is also a [notices.csv](src/data/notices.csv) file which is manually updat
 the data. The goal is to be able to query by key and date, to get a list of applicable notices to
 the requested subset.
 
-### Backwards compatibility
-Please note that the following datasets are maintained only to preserve backwards compatibility, but
-shouldn't be used in any new projects:
-* [Data](https://open-covid-19.github.io/data/data.csv)
-* [Latest](https://open-covid-19.github.io/data/data_latest.csv)
-* [Minimal](https://open-covid-19.github.io/data/data_minimal.csv)
-* [Forecast](https://open-covid-19.github.io/data/data_forecast.csv)
-* [Mobility](https://open-covid-19.github.io/data/mobility.csv)
-* [Weather](https://open-covid-19.github.io/data/weather.csv)
-
 
 
 ## Licensing
