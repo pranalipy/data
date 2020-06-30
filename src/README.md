@@ -89,9 +89,9 @@ The following diagram summarizes the architecture:
 
 ## Publish
 Data tables are made available for use via the `publish.py` script which uploads the files to a file
-server and creates the different versions of the datasets (like date subsets, the master table, JSON
+server and creates the different versions of the datasets (like date subsets, the main table, JSON
 formatted files, etc.). Data is published automatically by the CI server with every change to the
-master branch; to run the publish step locally, simply execute this script from the `src` directory:
+main branch; to run the publish step locally, simply execute this script from the `src` directory:
 ```sh
 python publish.py
 ```

@@ -19,7 +19,7 @@ set -xe
 # Clone the repo into a temporary directory
 # TMPDIR=$(mktemp -d -t opencovid-$(date +%Y-%m-%d-%H-%M-%S)-XXXX)
 TMPDIR="/tmp/opencovid-$(date +%Y-%m-%d-%H-%M-%S)-XXXX"
-git clone https://github.com/open-covid-19/data.git --single-branch -b master "$TMPDIR/opencovid"
+git clone https://github.com/open-covid-19/data.git --single-branch -b main "$TMPDIR/opencovid"
 
 # Download the intermediate files into the working directory
 mkdir -p "$TMPDIR/opencovid/output/snapshot"
@@ -42,7 +42,7 @@ export LC_CTYPE="en_US.UTF-8"
 # Install Python dependencies
 pip install -r requirements.txt
 # Update all the data pipelines
-python3 update.py --only epidemiology
+python3 update.py --only index,epidemiology
 # Get the files ready for publishing
 python3 publish.py
 EOF
